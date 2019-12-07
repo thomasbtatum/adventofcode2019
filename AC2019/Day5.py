@@ -53,6 +53,36 @@ while i < len(inputs):
             print("4 ouput:" + inputs[i+1])
         else:
             print("4 ouput:" + inputs[int(inputs[i+1])])
+    elif opcode==5:
+        increment = 3
+        p1 = int(inputs[i+1]) if p1mode == 1  else int(inputs[int(inputs[i+1])])
+        p2 = int(inputs[i+2]) if p2mode == 1  else int(inputs[int(inputs[i+2])])
+        if p1 != 0:
+            i = p2
+            increment = 0
+    elif opcode==6:
+        increment = 3
+        p1 = int(inputs[i+1]) if p1mode == 1  else int(inputs[int(inputs[i+1])])
+        p2 = int(inputs[i+2]) if p2mode == 1  else int(inputs[int(inputs[i+2])])
+        if p1 == 0:
+            i = p2
+            increment = 0
+    elif opcode==7:
+        p1 = int(inputs[i+1]) if p1mode == 1  else int(inputs[int(inputs[i+1])])
+        p2 = int(inputs[i+2]) if p2mode == 1  else int(inputs[int(inputs[i+2])])
+        p3 = int(inputs[i+3])
+        if p1 < p2:
+            setValue(inputs,p3,1)
+        else:
+            setValue(inputs,p3,0)
+    elif opcode==8:
+        p1 = int(inputs[i+1]) if p1mode == 1  else int(inputs[int(inputs[i+1])])
+        p2 = int(inputs[i+2]) if p2mode == 1  else int(inputs[int(inputs[i+2])])
+        p3 = int(inputs[i+3])
+        if p1 == p2:
+            setValue(inputs,p3,1)
+        else:
+            setValue(inputs,p3,0)   
     else:
         assert inputs[i] == "99"
         print("Exit: got opcode 99. " + str(inputs[0]))
@@ -60,3 +90,4 @@ while i < len(inputs):
     i+=increment
 
 #part 1 is complete - the answer was 4601506 for my input
+#part 2 is complete - got it 5525561 and it was correct based on my input

@@ -23,6 +23,21 @@ def markDepthRecur(n,dep):
     for n2 in n.children:
         markDepthRecur(n2,dep+1)
 
+def markDownDepthRecur(n):
+    assert n.depth > -1
+    for n2 in n.children:
+        if n2.depth == -1:
+            n2.depth = n.depth + 1
+        markDownDepthRecur(n2)
+
+def markUpDepthRecur(n,dep):
+    n.depth = dep
+    if n.parent is None:
+        return
+    else:
+        markUpDepthRecur(n.parent,dep+1)
+
+
 f = open("AC2019/Day6input.txt")
 rawOrbit = f.readlines()
 print("Done Reading.")
@@ -49,11 +64,24 @@ while i < len(rawOrbit):
 
     i += 1
 
+#r = findRoot(nodes)
+#markDepthRecur(r,0)
+
+s = nodes["SAN"]
+s.depth = 0
+markUpDepthRecur(s.parent,0)
 r = findRoot(nodes)
-markDepthRecur(r,0)
+markDownDepthRecur(r)
 
-total = 0
-for k in nodes.keys():
-    total += nodes[k].depth
+y = nodes["YOU"]
+print("Distance is: " + str(y.depth))
 
-print("Total: " + str(total))
+#The answer was 307.  1 minus the 308 that will print
+#because we need the shortest from parent of You not YOU
+
+
+# total = 0
+# for k in nodes.keys():
+#     total += nodes[k].depth
+
+# print("Total: " + str(total))

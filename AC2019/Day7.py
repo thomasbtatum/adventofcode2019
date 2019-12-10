@@ -1,12 +1,13 @@
 import itertools
 class IntCodeAmplifier(object):
-    def __init__(self,phaseSetting,inputSignal):
+    def __init__(self,phaseSetting):
         self.inputs = []
         self.f = open("AC2019/Day7input.txt")
         self.s = self.f.readline()
         self.inputs = self.s.split(',')
-        self.inputSignalSecond = inputSignal
-        self.phaseFirst = phaseSetting 
+        #self.inputSignalSecond = inputSignal
+        self.phaseFirst = phaseSetting
+        self.firstInput = True
 
     def getParameters(self,val):
         newVal = str(val.zfill(5))
@@ -50,18 +51,9 @@ class IntCodeAmplifier(object):
                 l.append([m] + p) 
             return l 
 
-    def _heap_perm_(self,n,A):
-        if n == 1: yield A
-        else:
-            for i in range(n-1):
-                for hp in self._heap_perm_(n-1, A): yield hp
-                j = 0 if (n % 2) == 1 else i
-                A[j],A[n-1] = A[n-1],A[j]
-            for hp in self._heap_perm_(n-1, A): yield hp
 
-    def getOutput(self):
-        i = 0
-        inputCount = 1
+    def getOutput(self, inputSignal, ip):
+        i = ip
         while i < len(self.inputs):
             increment = 4
             opcode,p1mode,p2mode,p3mode = self.getParameters(self.inputs[i])
@@ -87,11 +79,11 @@ class IntCodeAmplifier(object):
                 increment = 2
                 ci = int(self.inputs[i+1])
 
-                if inputCount == 1:
+                if self.firstInput:
                     incode = self.phaseFirst
-                    inputCount += 1
+                    self.firstInput = False
                 else:
-                    incode = self.inputSignalSecond 
+                    incode = inputSignal 
 
                 self.setValue(self.inputs,ci,incode)
                 #print("3 got:" + str(incode))
@@ -100,10 +92,10 @@ class IntCodeAmplifier(object):
                 increment = 2
                 if p1mode == 1:
                     #print("4 ouput:" + self.inputs[i+1])
-                    return self.inputs[i+1]
+                    return int(self.inputs[i+1]), i+2
                 else:
                     #print("4 ouput:" + self.inputs[int(self.inputs[i+1])])
-                    return self.inputs[int(self.inputs[i+1])]
+                    return int(self.inputs[int(self.inputs[i+1])]), i+2
             elif opcode==5:
                 increment = 3
                 p1 = int(self.inputs[i+1]) if p1mode == 1  else int(self.inputs[int(self.inputs[i+1])])
@@ -135,26 +127,40 @@ class IntCodeAmplifier(object):
                 else:
                     self.setValue(self.inputs,p3,0)   
             else:
-                assert self.inputs[i] == "99"
-                print("Exit: got opcode 99. " + str(self.inputs[0]))
-                exit()
+                #assert self.inputs[i] == "99"
+                print("Exit: got opcode 99. " + str(opcode))
+                return -1,-1
+            print(i,opcode)
             i+=increment
 
 
-v = IntCodeAmplifier(1,2)
-v.getOutput()
+ampTotal = {}
+amps=[]
 
-ampDict = []
-data = list('123') 
-for p in itertools.permutations([0,1,2,3,4]):
-    output = 0
+lastOutput = 0
+
+for p in itertools.permutations([5,6,7,8,9]):
     for phase in p:
-        inputSignal = output
-        t = IntCodeAmplifier(phase,inputSignal)
-        output = t.getOutput()
-        #print("phase:" + str(phase) + " input:" + str(inputSignal) + " output:"+str(output))
-    print(p)
-    print(output)
-    ampDict.append(int(output))
-ampDict.sort()
-print(ampDict)
+        amps.append(IntCodeAmplifier(phase))
+    
+    ampInputs = [0,0,0,0,0]
+    ampInsPtrs = [0,0,0,0,0]
+
+    output = 0
+    while(output != -1):
+        ampCount = 0
+        for amp in amps:
+            output,ip = amp.getOutput(ampInputs[ampCount],ampInsPtrs[ampCount])
+            if output == -1:
+                break
+            ampInputs[(ampCount+1)%5] = output
+            ampInsPtrs[ampCount] = ip
+            ampCount += 1
+            #print("phase:" + str(phase) + " input:" + str(inputSignal) + " output:"+str(output))
+        lastOutput = output if output != -1 else lastOutput
+    amps.clear()
+    ampTotal[p]=int(lastOutput)
+
+#ampTotal.sort()
+print(sorted(ampTotal,key=ampTotal.get))
+print(ampTotal)

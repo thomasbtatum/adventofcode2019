@@ -138,8 +138,25 @@ def getTotalForPoint(points, point):
         print(totals)
     return len(totals.keys())
 
+def getTotalsForAsteroid(asteroid, point):
+    totals = {}
 
-f = open("Day10.in")
+    for a in asteroid:
+        if a == point:
+            continue
+        
+        rise, run = returnRiseRun(point, a)
+        slope = tuple([rise, run])
+        d2 = distance(point,a)
+        if slope in totals:
+            if d2 < totals[slope][1]:
+                totals[slope] = [a, d2]
+        else:
+            totals[slope] = [a, d2]
+    return len(totals.keys())
+           
+
+f = open("AC2019/Day10.in")
 s = f.readlines()
 lines = [l.strip() for l in s]
 
@@ -148,11 +165,16 @@ assert pointInMap(lines, [0, -1])
 assert pointInMap(lines, [500, 500]) == False
 
 totals = {}
+asteroids = []
 for y in range(0, -1*len(lines), -1):
     for x in range(0, len(lines[y])):
         point = [x, y]
         if isAsteroid(lines, point):
-            totals[tuple(point)] = getTotalForPoint(lines, point)
+            asteroids.append(point)
+
+for a in asteroids:
+        totals[tuple(a)] = getTotalsForAsteroid(asteroids,a)
+            #totals[tuple(point)] = getTotalForPoint(lines, point)
 
 # print(sorted(totals,key=totals.get))
 # print(totals)

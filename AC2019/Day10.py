@@ -46,21 +46,58 @@ def returnRiseRun(p1, p2):
 
     signRise = 1
     signRun = 1
-    #preserve sign (+/-) of rise/run
+    # preserve sign (+/-) of rise/run
     if rise < 0:
-        signRise = -1 
+        signRise = -1
         rise *= -1
     if run < 0:
-        signRun = -1 
+        signRun = -1
         run *= -1
 
-    x = Fraction(rise, run)#this does greatest common devisor, but flips sign if neg on bottm
+    # this does greatest common devisor, but flips sign if neg on bottm
+    x = Fraction(rise, run)
 
     return x.numerator*signRise, x.denominator*signRun
 
 
 def pointInMap(spots, p1):
     return 0 <= p1[0] < len(spots[0]) and 0 >= p1[1] >= (-1*len(spots)+1)
+
+
+def isWhole(numToCheck):
+    return numToCheck % 1 == 0
+
+
+def getNearestYOnLineWithAsteroid(points, slope, point, x, end):
+    sl = 0 if slope[1] == 0 else Fraction(slope[0], slope[1])
+    noResult = None
+
+    if sl == 0 and end[1] > point[1]:
+        for y in range(point[1]+1, 1, 1):
+            checkPoint = [x, y]
+            if pointInMap(points, checkPoint):
+                if isAsteroid(points, checkPoint):
+                    return y
+            else:
+                return noResult
+
+    if sl == 0 and point[1] > end[1]:
+        for y in range(point[1]-1, -1*len(points), -1):
+            checkPoint = [x, y]
+            if pointInMap(points, checkPoint):
+                if isAsteroid(points, checkPoint):
+                    return y
+            else:
+                return noResult
+
+    gety = (sl * (x - point[0])) + point[1]
+    if isWhole(gety):
+        p2 = [x, int(gety)]
+        if p2 == point:
+            return noResult
+        if(isAsteroid(points, p2)):
+            return p2[1]
+    return noResult
 
 
 def getTotalForPoint(points, point):
@@ -72,32 +109,37 @@ def getTotalForPoint(points, point):
             continue
         rise, run = returnRiseRun(point, val)
         slope = tuple([rise, run])
-        #valt = tuple(val)
         match = 0
-        p2 = [point[0]+run, point[1]+rise]
-        while(pointInMap(points, p2)):
-            if(isAsteroid(points, p2)):
-                match = 1
+
+        start = point[0]
+        stop = val[0]+1
+        step = -1 if val[0] < point[0] else 1
+
+        for x in range(start, stop, step):
+
+            gety = getNearestYOnLineWithAsteroid(points, slope, point, x, val)
+            if gety == None:
+                continue
+            else:
+                p2 = [x, gety]
                 d2 = distance(point, p2)
-                if(slope in totals):
-                    if d2 < totals[slope]:
-                        totals[slope] = d2
-                    else:
-                        break  # min found dont test more
+                match = 1
+                if slope in totals:
+                    if d2 < totals[slope][1]:
+                        totals[slope] = [point, d2]
+
                 else:
                     totals[slope] = d2
-                    break  # first is min dont test more
-            p2 = [p2[0]+run, p2[1]+rise]
-
-        # if our p2 was too large and edge point is asteroid
-        # use that. 100 is arbitrary int
+                break
         if match == 0 and isAsteroid(points, val):
-            totals[slope] = 100
-        print(idx, point, val, match)
+            totals[slope] = [point, 100]
+            match = 1
+        print(idx, point, val, slope, match)
+        print(totals)
     return len(totals.keys())
 
 
-f = open("AC2019/Day10.in")
+f = open("Day10.in")
 s = f.readlines()
 lines = [l.strip() for l in s]
 

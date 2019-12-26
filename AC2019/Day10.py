@@ -1,4 +1,5 @@
 from fractions import Fraction
+import math
 
 
 def allEdgePoints(points):
@@ -138,23 +139,39 @@ def getTotalForPoint(points, point):
         print(totals)
     return len(totals.keys())
 
-def getTotalsForAsteroid(asteroid, point):
+def getTotalsForAsteroid(asteroids, asteroid):
     totals = {}
 
-    for a in asteroid:
-        if a == point:
+    for a in asteroids:
+        if a == asteroid:
             continue
         
-        rise, run = returnRiseRun(point, a)
+        rise, run = returnRiseRun(asteroid, a)
         slope = tuple([rise, run])
-        d2 = distance(point,a)
+        d2 = distance(asteroid,a)
         if slope in totals:
             if d2 < totals[slope][1]:
                 totals[slope] = [a, d2]
         else:
             totals[slope] = [a, d2]
     return len(totals.keys())
-           
+
+def getSlopesForAsteroid(asteroids, asteroid):
+    totals = {}
+
+    for a in asteroids:
+        if a == asteroid:
+            continue
+        
+        rise, run = returnRiseRun(asteroid, a)
+        slope = tuple([rise, run])
+        d2 = distance(asteroid,a)
+        if slope in totals:
+            if d2 < totals[slope][1]:
+                totals[slope] = [a, d2]
+        else:
+            totals[slope] = [a, d2]
+    return totals           
 
 f = open("AC2019/Day10.in")
 s = f.readlines()
@@ -172,14 +189,33 @@ for y in range(0, -1*len(lines), -1):
         if isAsteroid(lines, point):
             asteroids.append(point)
 
+
 for a in asteroids:
         totals[tuple(a)] = getTotalsForAsteroid(asteroids,a)
+
+slopeDic = getSlopesForAsteroid(asteroids,[22,-28])
+
+to_sort = []
+for slope in slopeDic.keys():
+    dr = slope[0]
+    dc = slope[1]
+    key = math.atan2(dr,dc)
+    if key > math.pi/2.0:
+        key -= 2*math.pi
+    to_sort.append((key,slopeDic[slope][0]))
+
+to_sort = list(reversed(sorted(to_sort)))
+winner = to_sort[199][1]
+print(winner)
+
+
+#for a in asteroids:
+#        totals[tuple(a)] = getTotalsForAsteroid(asteroids,a)
             #totals[tuple(point)] = getTotalForPoint(lines, point)
 
-# print(sorted(totals,key=totals.get))
-# print(totals)
-#print(sorted( ((v,k) for k,v in totals.iteritems()), reverse=True))
-#print({k: v for k, v in sorted(x.items(), key=lambda item: item[1])})
+
 for w in sorted(totals, key=totals.get, reverse=True):
-    print(w, totals[w])
+   print(w, totals[w])
 print("Done")
+
+

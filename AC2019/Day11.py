@@ -153,7 +153,7 @@ while i < len(inputs):
         if p1mode == 2:
             ci += relativeBase
         #incode = input("Enter Code:")
-        incode = 1 if currentSpot in paintedSpots else 0
+        incode = 0 if currentSpot in paintedSpots else 1
         print("3 got:" + str(incode))
         setValue(inputs,ci,incode)
 
@@ -176,7 +176,7 @@ while i < len(inputs):
             output2 = output
             paintSpot(currentSpot, paintedSpots, output1, paintedOnce) #1 paint white - 0 black
             currentSpot,orientation = moveShip(output2, currentSpot, orientation)# 1 turn right, 0 left
-            #printGrid(currentSpot, orientation,paintedSpots)
+            printGrid(currentSpot, orientation,paintedSpots)
         #colorToPaint,directionToTurn = getColorAndDirection(paintedSpots,currentSpot)
         #paintSpot(colorToPaint,paintedSpots)
         #currentSpot = getNextSpot(directionToTurn, )

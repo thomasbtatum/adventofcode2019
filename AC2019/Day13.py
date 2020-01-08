@@ -26,16 +26,26 @@ def printGrid(grid):
             if t in grid:
                 dot = str(grid[t])
                 if dot == '0':
-                    dot = ' '
+                    dot = '.'
                 elif dot == '2':
                     dot = '-'
                 elif dot == '4':
-                    dot = '*'
+                    dot = '@'
                 print(dot, end='')
             else:
                 print('-', end='')
         print('')
 
+def findXs(grid):
+    ballX = 0
+    paddleX = 0
+    for k,v in grid.items():
+        if v == '3':
+            paddleX = k
+        elif v == '4':
+            ballX = k
+    print(ballX, paddleX)
+    return ballX[0],paddleX[0]
 
 def getParameters(val):
     newVal = str(val.zfill(5))
@@ -65,6 +75,8 @@ s = f.readline()
 inputs = s.split(',')
 t = 1
 i = 0
+takeInput = True
+takeInputLimit = 0
 relativeBase = 0
 outCount = 1
 xcoord = 0
@@ -102,13 +114,31 @@ while i < len(inputs):
         ci = getValue(inputs, i+1)
         if p1mode == 2:
             ci += relativeBase
-        printGrid(grid)
+
         flush_input()
-        incode = input("Enter Code "+ str(t) +":")
+        if takeInput:
+            #printGrid(grid)
+            #time.sleep(.5)
+            #incode = input("Enter Code "+ str(t) +":")
+            ballX,paddleX = findXs(grid)
+            if ballX > paddleX:
+                incode = '1'
+            elif ballX < paddleX:
+                incode = '-1'
+            else:
+                incode = '0'
+        elif t > takeInputLimit:
+            takeInputLimit = 0
+            takeInput = True
+        t += 1
         if incode == '':
             incode = '0'
         print("3 got:" + incode)
-        time.sleep(.05)
+        time.sleep(.005)
+        if int(incode) > 1:
+            takeInput = False
+            takeInputLimit = int(incode)
+            incode = '0'
         setValue(inputs, ci, incode)
     elif opcode == 4:  # output
         output = None
@@ -194,7 +224,6 @@ while i < len(inputs):
         break
         # exit()
     i += increment
-    t += 1
 
 print("Done")
 printGrid(grid)
